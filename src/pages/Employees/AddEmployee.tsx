@@ -31,7 +31,13 @@ const AddEmployee = () => {
     designation: '',
     classification: 'Executive',
     basicSalary: '',
-    joiningDate: new Date().toISOString().split('T')[0]
+    joiningDate: new Date().toISOString().split('T')[0],
+    address: '',
+    emergencyContact: {
+      name: '',
+      phone: '',
+      relation: ''
+    }
   });
 
   const steps = [
@@ -53,11 +59,26 @@ const AddEmployee = () => {
     }
   };
 
+  const generateEmployeeId = () => {
+    const year = new Date().getFullYear();
+    const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `IPA-${year}-${randomNum}`;
+  };
+
   const handleSubmit = () => {
     const newEmployee = {
-      ...formData,
+      employeeId: generateEmployeeId(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      department: formData.department,
+      designation: formData.designation,
+      classification: formData.classification as 'Executive' | 'Non-Executive' | 'Contract' | 'Trainee',
+      status: 'Active' as const,
+      joiningDate: formData.joiningDate,
       basicSalary: parseInt(formData.basicSalary) || 25000,
-      status: 'Active' as const
+      address: formData.address,
+      emergencyContact: formData.emergencyContact
     };
     
     addEmployee(newEmployee);
@@ -97,6 +118,50 @@ const AddEmployee = () => {
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="Enter phone number"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <Input
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter full address"
+              />
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Emergency Contact</h4>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+                <Input
+                  value={formData.emergencyContact.name}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    emergencyContact: { ...formData.emergencyContact, name: e.target.value }
+                  })}
+                  placeholder="Emergency contact name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                <Input
+                  value={formData.emergencyContact.phone}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    emergencyContact: { ...formData.emergencyContact, phone: e.target.value }
+                  })}
+                  placeholder="Emergency contact phone"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Relation</label>
+                <Input
+                  value={formData.emergencyContact.relation}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    emergencyContact: { ...formData.emergencyContact, relation: e.target.value }
+                  })}
+                  placeholder="Relationship (e.g., Spouse, Parent)"
+                />
+              </div>
             </div>
           </div>
         );
@@ -213,6 +278,14 @@ const AddEmployee = () => {
                 <div>
                   <span className="text-sm text-gray-600">Basic Salary:</span>
                   <p className="font-medium">₹{formData.basicSalary}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Address:</span>
+                  <p className="font-medium">{formData.address}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Emergency Contact:</span>
+                  <p className="font-medium">{formData.emergencyContact.name} ({formData.emergencyContact.relation})</p>
                 </div>
               </div>
             </div>
