@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import EmployeeList from "./pages/Employees/EmployeeList";
 import AddEmployee from "./pages/Employees/AddEmployee";
 import EmployeeProfile from "./pages/Employees/EmployeeProfile";
+import DepartmentList from "./pages/Employees/DepartmentList";
+import DesignationList from "./pages/Employees/DesignationList";
 import AttendanceOverview from "./pages/Attendance/AttendanceOverview";
 import PayrollDashboard from "./pages/Payroll/PayrollDashboard";
 import LeaveManagement from "./pages/Leave/LeaveManagement";
@@ -50,6 +52,20 @@ const App = () => (
           <Route path="/employees/:id" element={
             <ProtectedRoute requiredPermissions={['employees.read']}>
               <EmployeeProfile />
+            </ProtectedRoute>
+          } />
+          
+          {/* Department Management Routes */}
+          <Route path="/departments" element={
+            <ProtectedRoute requiredPermissions={['departments.read']}>
+              <DepartmentList />
+            </ProtectedRoute>
+          } />
+          
+          {/* Designation Management Routes */}
+          <Route path="/designations" element={
+            <ProtectedRoute requiredPermissions={['designations.read']}>
+              <DesignationList />
             </ProtectedRoute>
           } />
           
