@@ -26,7 +26,7 @@ export const ResponsiveLayout = ({ children }: ResponsiveLayoutProps) => {
         "fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <Sidebar onClose={() => setSidebarOpen(false)} />
+        <Sidebar />
       </div>
       
       {/* Main content */}

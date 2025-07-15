@@ -27,7 +27,6 @@ import {
   FileSpreadsheet,
   UserCog,
   Gavel,
-  LogOut,
   Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -39,6 +38,7 @@ interface SidebarItem {
   icon: any;
   children?: SidebarItem[];
   permissions?: string[];
+  badge?: string;
 }
 
 const sidebarItems: SidebarItem[] = [
@@ -54,7 +54,7 @@ const sidebarItems: SidebarItem[] = [
       { title: 'All Employees', href: '/employees', icon: Users },
       { title: 'Add Employee', href: '/employees/add', icon: UserPlus },
       { title: 'Departments', href: '/departments', icon: Building },
-      { title: 'Probation Tracking', href: '/employees/probation', icon: Timer }
+      { title: 'Probation Tracking', href: '/employees/probation', icon: Timer, badge: '5' }
     ]
   },
   {
@@ -64,10 +64,9 @@ const sidebarItems: SidebarItem[] = [
       { title: 'Overview', href: '/attendance', icon: Clock },
       { title: 'Punch In/Out', href: '/attendance/punch', icon: Timer },
       { title: 'Manual Entry', href: '/attendance/manual', icon: PlusCircle },
-      { title: 'Approvals', href: '/attendance/approvals', icon: Shield },
+      { title: 'Approvals', href: '/attendance/approvals', icon: Shield, badge: '3' },
       { title: 'Overtime', href: '/attendance/overtime', icon: TrendingUp },
-      { title: 'Shifts & Roster', href: '/attendance/shifts', icon: Calendar },
-      { title: 'Devices', href: '/attendance/devices', icon: Settings }
+      { title: 'Shifts & Roster', href: '/attendance/shifts', icon: Calendar }
     ]
   },
   {
@@ -82,42 +81,13 @@ const sidebarItems: SidebarItem[] = [
     ]
   },
   {
-    title: 'Salary Administration',
-    icon: CreditCard,
-    children: [
-      { title: 'Dashboard', href: '/salary', icon: CreditCard },
-      { title: 'Basic Salary', href: '/salary/basic', icon: DollarSign },
-      { title: 'Increments', href: '/salary/increments', icon: TrendingUp },
-      { title: 'Bonuses', href: '/salary/bonuses', icon: Gift },
-      { title: 'Revisions', href: '/salary/revisions', icon: FileText }
-    ]
-  },
-  {
     title: 'Leave Management',
     icon: Calendar,
     children: [
       { title: 'Overview', href: '/leave', icon: Calendar },
       { title: 'Leave Types', href: '/leave/types', icon: Settings },
-      { title: 'Requests', href: '/leave/requests', icon: FileText },
+      { title: 'Requests', href: '/leave/requests', icon: FileText, badge: '2' },
       { title: 'Encashment', href: '/leave/encashment', icon: DollarSign }
-    ]
-  },
-  {
-    title: 'Festival Advances',
-    icon: Gift,
-    children: [
-      { title: 'Dashboard', href: '/advances', icon: Gift },
-      { title: 'Recovery Tracking', href: '/advances/recovery', icon: BarChart3 }
-    ]
-  },
-  {
-    title: 'Location Management',
-    icon: MapPin,
-    children: [
-      { title: 'Overview', href: '/locations', icon: MapPin },
-      { title: 'Geofencing', href: '/locations/geofencing', icon: Shield },
-      { title: 'Real-time Tracking', href: '/locations/tracking', icon: Timer },
-      { title: 'Alerts', href: '/locations/alerts', icon: Bell }
     ]
   },
   {
@@ -127,8 +97,6 @@ const sidebarItems: SidebarItem[] = [
       { title: 'Dashboard', href: '/reports', icon: BarChart3 },
       { title: 'Salary Reports', href: '/reports/salary', icon: DollarSign },
       { title: 'Attendance Reports', href: '/reports/attendance', icon: Clock },
-      { title: 'Payroll Reports', href: '/reports/payroll', icon: Calculator },
-      { title: 'Custom Reports', href: '/reports/custom', icon: Settings },
       { title: 'Export Data', href: '/reports/export', icon: FileSpreadsheet }
     ]
   }
@@ -136,6 +104,7 @@ const sidebarItems: SidebarItem[] = [
 
 export const Sidebar = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['Employee Management']);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const location = useLocation();
   const { user } = useAuthStore();
 
@@ -159,45 +128,76 @@ export const Sidebar = () => {
 
     const isExpanded = expandedItems.includes(item.title);
     const isActive = item.href && location.pathname === item.href;
+    const isHovered = hoveredItem === item.title;
     
     return (
       <div key={item.title}>
         {item.href ? (
           <NavLink
             to={item.href}
+            onMouseEnter={() => setHoveredItem(item.title)}
+            onMouseLeave={() => setHoveredItem(null)}
             className={({ isActive }) => cn(
-              'flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-blue-50',
-              level > 0 && 'ml-4 pl-8',
+              'flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group',
+              level > 0 && 'ml-6 pl-8',
               isActive 
-                ? 'bg-blue-100 text-blue-900 border-r-2 border-blue-600 shadow-sm' 
-                : 'text-gray-700 hover:text-blue-700'
+                ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm' 
+                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
+              isHovered && !isActive && 'bg-gray-50'
             )}
           >
-            <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
-            <span className="truncate">{item.title}</span>
+            <div className="flex items-center">
+              <item.icon className={cn(
+                "w-5 h-5 mr-3 flex-shrink-0 transition-colors",
+                isActive ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"
+              )} />
+              <span className="truncate">{item.title}</span>
+            </div>
+            {item.badge && (
+              <span className="bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ) : (
           <button
             onClick={() => toggleExpanded(item.title)}
+            onMouseEnter={() => setHoveredItem(item.title)}
+            onMouseLeave={() => setHoveredItem(null)}
             className={cn(
-              'flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-left rounded-lg transition-all duration-200 hover:bg-blue-50',
-              level > 0 && 'ml-4',
-              'text-gray-700 hover:text-blue-700'
+              'flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-left rounded-lg transition-all duration-200 group',
+              level > 0 && 'ml-6',
+              'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
+              isHovered && 'bg-gray-50',
+              isExpanded && 'text-blue-700'
             )}
           >
             <div className="flex items-center">
-              <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
+              <item.icon className={cn(
+                "w-5 h-5 mr-3 flex-shrink-0 transition-colors",
+                isExpanded ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"
+              )} />
               <span className="truncate">{item.title}</span>
             </div>
-            {item.children && (
-              <div className="ml-2">
-                {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 transition-transform duration-200" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 transition-transform duration-200" />
-                )}
-              </div>
-            )}
+            <div className="flex items-center space-x-2">
+              {item.badge && (
+                <span className="bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
+              {item.children && (
+                <div className={cn(
+                  "transition-transform duration-200",
+                  isExpanded ? "rotate-0" : "rotate-0"
+                )}>
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                  )}
+                </div>
+              )}
+            </div>
           </button>
         )}
         
@@ -226,21 +226,21 @@ export const Sidebar = () => {
       </div>
       
       {/* Navigation */}
-      <nav className="p-4 space-y-2">
+      <nav className="p-4 space-y-1">
         {sidebarItems.map(item => renderSidebarItem(item))}
       </nav>
       
       {/* Admin Section */}
       {user?.role === 'admin' && (
         <div className="p-4 border-t border-gray-200 mt-auto">
-          <div className="space-y-2">
+          <div className="space-y-1">
             <NavLink
               to="/admin/users"
               className={({ isActive }) => cn(
-                'flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                 isActive 
-                  ? 'bg-red-100 text-red-900 border-r-2 border-red-600' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-red-50 text-red-700 border-r-2 border-red-600' 
+                  : 'text-gray-700 hover:bg-gray-50'
               )}
             >
               <UserCog className="w-5 h-5 mr-3" />
@@ -249,26 +249,14 @@ export const Sidebar = () => {
             <NavLink
               to="/admin/audit"
               className={({ isActive }) => cn(
-                'flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                 isActive 
-                  ? 'bg-red-100 text-red-900 border-r-2 border-red-600' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-red-50 text-red-700 border-r-2 border-red-600' 
+                  : 'text-gray-700 hover:bg-gray-50'
               )}
             >
               <Shield className="w-5 h-5 mr-3" />
               Audit Logs
-            </NavLink>
-            <NavLink
-              to="/admin/security"
-              className={({ isActive }) => cn(
-                'flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors',
-                isActive 
-                  ? 'bg-red-100 text-red-900 border-r-2 border-red-600' 
-                  : 'text-gray-700 hover:bg-gray-100'
-              )}
-            >
-              <Settings className="w-5 h-5 mr-3" />
-              System Settings
             </NavLink>
           </div>
         </div>
