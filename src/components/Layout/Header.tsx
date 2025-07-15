@@ -1,6 +1,5 @@
 
-import { Bell, User, LogOut, Settings, Moon, Sun } from 'lucide-react';
-import { useState } from 'react';
+import { Bell, User, LogOut, Settings, Menu } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,58 +11,61 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
-export const Header = () => {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export const Header = ({ onMenuClick }: HeaderProps) => {
   const { user, logout } = useAuthStore();
-  const [darkMode, setDarkMode] = useState(false);
 
   const handleLogout = () => {
     logout();
     window.location.href = '/login';
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
-
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Welcome back, {user?.name?.split(' ')[0]}!
-          </h2>
-        </div>
-        
-        <div className="flex items-center space-x-4">
+          {/* Mobile menu button */}
           <Button
             variant="ghost"
-            size="icon"
-            onClick={toggleDarkMode}
-            className="text-gray-600 hover:text-gray-900"
+            size="sm"
+            onClick={onMenuClick}
+            className="lg:hidden"
           >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            <Menu className="w-5 h-5" />
           </Button>
           
+          <div className="hidden sm:block">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+              Welcome back, {user?.name?.split(' ')[0]}!
+            </h2>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             className="text-gray-600 hover:text-gray-900 relative"
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs"></span>
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
           </Button>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-2 hover:bg-gray-100">
+              <Button variant="ghost" className="flex items-center space-x-2 hover:bg-gray-100 p-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-blue-600 text-white text-sm">
+                  <AvatarFallback className="bg-blue-600 text-white text-sm font-medium">
                     {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900 truncate max-w-32">
+                    {user?.name}
+                  </p>
                   <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
                 </div>
               </Button>
