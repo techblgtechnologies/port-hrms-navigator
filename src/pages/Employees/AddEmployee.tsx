@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/Layout/MainLayout';
@@ -17,6 +16,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useEmployeeStore } from '../../stores/employeeStore';
+import { EmployeeType, EmployeeStatus } from '../../types';
 import { toast } from '@/hooks/use-toast';
 
 const AddEmployee = () => {
@@ -24,20 +24,21 @@ const AddEmployee = () => {
   const { addEmployee } = useEmployeeStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
+    emp_code: '',
+    type_code: EmployeeType.Regular,
+    first_name: '',
+    last_name: '',
     phone: '',
-    department: '',
-    designation: '',
-    classification: 'Executive',
-    basicSalary: '',
-    joiningDate: new Date().toISOString().split('T')[0],
-    address: '',
-    emergencyContact: {
-      name: '',
-      phone: '',
-      relation: ''
-    }
+    dob: '',
+    doj: new Date().toISOString().split('T')[0],
+    status: EmployeeStatus.Probation,
+    probation_end: '',
+    department_id: '',
+    designation_id: '',
+    is_active: true,
+    basicSalary: ''
   });
 
   const steps = [
@@ -59,32 +60,41 @@ const AddEmployee = () => {
     }
   };
 
-  const generateEmployeeId = () => {
+  const generateEmployeeCode = () => {
     const year = new Date().getFullYear();
     const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `IPA-${year}-${randomNum}`;
+    return `EMP-${year}-${randomNum}`;
   };
 
   const handleSubmit = () => {
     const newEmployee = {
-      employeeId: generateEmployeeId(),
-      name: formData.name,
+      username: formData.username,
       email: formData.email,
+      emp_code: formData.emp_code || generateEmployeeCode(),
+      type_code: formData.type_code,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
       phone: formData.phone,
-      department: formData.department,
-      designation: formData.designation,
-      classification: formData.classification as 'Executive' | 'Non-Executive' | 'Contract' | 'Trainee',
-      status: 'Active' as const,
-      joiningDate: formData.joiningDate,
+      dob: formData.dob,
+      doj: formData.doj,
+      status: formData.status,
+      probation_end: formData.probation_end,
+      department_id: formData.department_id,
+      designation_id: formData.designation_id,
+      is_active: formData.is_active,
+      // Computed properties for backward compatibility
+      get name() { return `${this.first_name} ${this.last_name}`; },
+      // UI compatibility properties
+      joiningDate: formData.doj,
       basicSalary: parseInt(formData.basicSalary) || 25000,
-      address: formData.address,
-      emergencyContact: formData.emergencyContact
+      classification: 'Executive',
+      employeeId: formData.emp_code || generateEmployeeCode()
     };
     
     addEmployee(newEmployee);
     toast({
       title: "Employee Added Successfully",
-      description: `${formData.name} has been added to the system.`,
+      description: `${formData.first_name} ${formData.last_name} has been added to the system.`,
     });
     navigate('/employees');
   };
@@ -95,11 +105,19 @@ const AddEmployee = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
               <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter full name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                placeholder="Enter first name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+              <Input
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                placeholder="Enter last name"
               />
             </div>
             <div>
@@ -120,48 +138,12 @@ const AddEmployee = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
               <Input
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Enter full address"
+                type="date"
+                value={formData.dob}
+                onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
               />
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-medium text-gray-900">Emergency Contact</h4>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
-                <Input
-                  value={formData.emergencyContact.name}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContact: { ...formData.emergencyContact, name: e.target.value }
-                  })}
-                  placeholder="Emergency contact name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
-                <Input
-                  value={formData.emergencyContact.phone}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContact: { ...formData.emergencyContact, phone: e.target.value }
-                  })}
-                  placeholder="Emergency contact phone"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Relation</label>
-                <Input
-                  value={formData.emergencyContact.relation}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContact: { ...formData.emergencyContact, relation: e.target.value }
-                  })}
-                  placeholder="Relationship (e.g., Spouse, Parent)"
-                />
-              </div>
             </div>
           </div>
         );
@@ -169,54 +151,84 @@ const AddEmployee = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-              <select
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Department</option>
-                <option value="Operations">Operations</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Finance">Finance</option>
-                <option value="HR">Human Resources</option>
-                <option value="Security">Security</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
               <Input
-                value={formData.designation}
-                onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                placeholder="Enter designation"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                placeholder="Enter username"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Classification</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Employee Code</label>
+              <Input
+                value={formData.emp_code}
+                onChange={(e) => setFormData({ ...formData, emp_code: e.target.value })}
+                placeholder="Enter employee code"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Employee Type</label>
               <select
-                value={formData.classification}
-                onChange={(e) => setFormData({ ...formData, classification: e.target.value })}
+                value={formData.type_code}
+                onChange={(e) => setFormData({ ...formData, type_code: e.target.value as EmployeeType })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="Executive">Executive</option>
-                <option value="Non-Executive">Non-Executive</option>
-                <option value="Contract">Contract</option>
-                <option value="Trainee">Trainee</option>
+                {Object.values(EmployeeType).map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Joining Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as EmployeeStatus })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {Object.values(EmployeeStatus).map((status) => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Joining</label>
               <Input
                 type="date"
-                value={formData.joiningDate}
-                onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
+                value={formData.doj}
+                onChange={(e) => setFormData({ ...formData, doj: e.target.value })}
               />
             </div>
+            {formData.status === EmployeeStatus.Probation && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Probation End Date</label>
+                <Input
+                  type="date"
+                  value={formData.probation_end}
+                  onChange={(e) => setFormData({ ...formData, probation_end: e.target.value })}
+                />
+              </div>
+            )}
           </div>
         );
       case 3:
         return (
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department ID</label>
+              <Input
+                value={formData.department_id}
+                onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
+                placeholder="Enter department ID"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Designation ID</label>
+              <Input
+                value={formData.designation_id}
+                onChange={(e) => setFormData({ ...formData, designation_id: e.target.value })}
+                placeholder="Enter designation ID"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Basic Salary (INR)</label>
               <Input
@@ -256,36 +268,40 @@ const AddEmployee = () => {
             <div className="bg-gray-50 p-4 rounded-lg space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-gray-600">Name:</span>
-                  <p className="font-medium">{formData.name}</p>
+                  <span className="text-sm text-gray-600">First Name:</span>
+                  <p className="font-medium">{formData.first_name}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Last Name:</span>
+                  <p className="font-medium">{formData.last_name}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-600">Email:</span>
                   <p className="font-medium">{formData.email}</p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600">Department:</span>
-                  <p className="font-medium">{formData.department}</p>
+                  <span className="text-sm text-gray-600">Username:</span>
+                  <p className="font-medium">{formData.username}</p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600">Designation:</span>
-                  <p className="font-medium">{formData.designation}</p>
+                  <span className="text-sm text-gray-600">Employee Code:</span>
+                  <p className="font-medium">{formData.emp_code}</p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600">Classification:</span>
-                  <Badge>{formData.classification}</Badge>
+                  <span className="text-sm text-gray-600">Employee Type:</span>
+                  <p className="font-medium">{formData.type_code}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Status:</span>
+                  <p className="font-medium">{formData.status}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Joining Date:</span>
+                  <p className="font-medium">{formData.doj}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-600">Basic Salary:</span>
                   <p className="font-medium">₹{formData.basicSalary}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-600">Address:</span>
-                  <p className="font-medium">{formData.address}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-600">Emergency Contact:</span>
-                  <p className="font-medium">{formData.emergencyContact.name} ({formData.emergencyContact.relation})</p>
                 </div>
               </div>
             </div>

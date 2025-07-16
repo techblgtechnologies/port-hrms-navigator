@@ -20,7 +20,12 @@ const mockEmployees: Employee[] = [
     is_active: true,
     get name() { return `${this.first_name} ${this.last_name}`; },
     department: { id: '1', name: 'Engineering', is_active: true, is_deleted: false },
-    designation: { id: '1', title: 'Senior Developer', level: 2, is_active: true, is_deleted: false }
+    designation: { id: '1', title: 'Senior Developer', level: 2, is_active: true, is_deleted: false },
+    // UI compatibility properties
+    joiningDate: '2020-03-15',
+    basicSalary: 75000,
+    classification: 'Executive',
+    employeeId: 'EMP001'
   },
   {
     id: '2',
@@ -39,7 +44,12 @@ const mockEmployees: Employee[] = [
     is_active: true,
     get name() { return `${this.first_name} ${this.last_name}`; },
     department: { id: '2', name: 'Human Resources', is_active: true, is_deleted: false },
-    designation: { id: '2', title: 'HR Manager', level: 3, is_active: true, is_deleted: false }
+    designation: { id: '2', title: 'HR Manager', level: 3, is_active: true, is_deleted: false },
+    // UI compatibility properties
+    joiningDate: '2021-08-01',
+    basicSalary: 65000,
+    classification: 'Executive',
+    employeeId: 'EMP002'
   },
   {
     id: '3',
@@ -58,7 +68,12 @@ const mockEmployees: Employee[] = [
     is_active: false,
     get name() { return `${this.first_name} ${this.last_name}`; },
     department: { id: '3', name: 'Finance', is_active: true, is_deleted: false },
-    designation: { id: '3', title: 'Accountant', level: 1, is_active: true, is_deleted: false }
+    designation: { id: '3', title: 'Accountant', level: 1, is_active: true, is_deleted: false },
+    // UI compatibility properties
+    joiningDate: '2019-01-20',
+    basicSalary: 55000,
+    classification: 'Non-Executive',
+    employeeId: 'EMP003'
   },
   {
     id: '4',
@@ -77,7 +92,12 @@ const mockEmployees: Employee[] = [
     is_active: true,
     get name() { return `${this.first_name} ${this.last_name}`; },
     department: { id: '4', name: 'Marketing', is_active: true, is_deleted: false },
-    designation: { id: '4', title: 'Marketing Specialist', level: 2, is_active: true, is_deleted: false }
+    designation: { id: '4', title: 'Marketing Specialist', level: 2, is_active: true, is_deleted: false },
+    // UI compatibility properties
+    joiningDate: '2022-07-01',
+    basicSalary: 60000,
+    classification: 'Executive',
+    employeeId: 'EMP004'
   },
   {
     id: '5',
@@ -96,22 +116,67 @@ const mockEmployees: Employee[] = [
     is_active: true,
     get name() { return `${this.first_name} ${this.last_name}`; },
     department: { id: '5', name: 'Sales', is_active: true, is_deleted: false },
-    designation: { id: '5', title: 'Sales Intern', level: 4, is_active: true, is_deleted: false }
+    designation: { id: '5', title: 'Sales Intern', level: 4, is_active: true, is_deleted: false },
+    // UI compatibility properties
+    joiningDate: '2023-06-01',
+    basicSalary: 25000,
+    classification: 'Trainee',
+    employeeId: 'EMP005'
   }
 ] as Employee[];
 
-// Mock departments
+// Mock departments with UI compatibility properties
 const mockDepartments: Department[] = [
-  { id: '1', name: 'Engineering', is_active: true, is_deleted: false },
-  { id: '2', name: 'Human Resources', is_active: true, is_deleted: false },
-  { id: '3', name: 'Finance', is_active: true, is_deleted: false },
-  { id: '4', name: 'Marketing', is_active: true, is_deleted: false },
-  { id: '5', name: 'Sales', is_active: true, is_deleted: false },
-  { id: '6', name: 'Operations', is_active: true, is_deleted: false },
-  { id: '7', name: 'Research and Development', is_active: true, is_deleted: false },
-  { id: '8', name: 'Customer Service', is_active: true, is_deleted: false },
-  { id: '9', name: 'Legal', is_active: true, is_deleted: false },
-  { id: '10', name: 'Information Technology', is_active: true, is_deleted: false }
+  { 
+    id: '1', 
+    name: 'Engineering', 
+    is_active: true, 
+    is_deleted: false,
+    head: 'John Smith',
+    description: 'Software development and technical solutions',
+    employeeCount: 25
+  },
+  { 
+    id: '2', 
+    name: 'Human Resources', 
+    is_active: true, 
+    is_deleted: false,
+    head: 'Sarah Johnson',
+    description: 'Employee management and organizational development',
+    employeeCount: 8
+  },
+  { 
+    id: '3', 
+    name: 'Finance', 
+    is_active: true, 
+    is_deleted: false,
+    head: 'Robert Wilson',
+    description: 'Financial planning and accounting',
+    employeeCount: 12
+  },
+  { 
+    id: '4', 
+    name: 'Marketing', 
+    is_active: true, 
+    is_deleted: false,
+    head: 'Lisa Brown',
+    description: 'Brand promotion and customer engagement',
+    employeeCount: 15
+  },
+  { 
+    id: '5', 
+    name: 'Sales', 
+    is_active: true, 
+    is_deleted: false,
+    head: 'Mike Davis',
+    description: 'Revenue generation and client relationships',
+    employeeCount: 20
+  },
+  { id: '6', name: 'Operations', is_active: true, is_deleted: false, head: 'Alice Williams', description: 'Day-to-day business operations', employeeCount: 30 },
+  { id: '7', name: 'Research and Development', is_active: true, is_deleted: false, head: 'David Garcia', description: 'Innovation and product development', employeeCount: 10 },
+  { id: '8', name: 'Customer Service', is_active: true, is_deleted: false, head: 'Linda Rodriguez', description: 'Customer support and satisfaction', employeeCount: 18 },
+  { id: '9', name: 'Legal', is_active: true, is_deleted: false, head: 'Christopher Martinez', description: 'Legal compliance and risk management', employeeCount: 5 },
+  { id: '10', name: 'Information Technology', is_active: true, is_deleted: false, head: 'Karen Anderson', description: 'IT infrastructure and support', employeeCount: 22 }
 ];
 
 interface EmployeeStore {

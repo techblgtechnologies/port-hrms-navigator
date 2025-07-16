@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/Layout/MainLayout';
@@ -41,6 +40,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { toast } from '@/hooks/use-toast';
+import { EmployeeType, EmployeeStatus } from '../../types';
 
 const EmployeeList = () => {
   const navigate = useNavigate();
@@ -52,16 +52,16 @@ const EmployeeList = () => {
   const [selectedFilters, setSelectedFilters] = useState({
     status: [] as string[],
     department: [] as string[],
-    classification: [] as string[]
+    type_code: [] as string[]
   });
 
   // Generate available filter options
   const availableOptions = useMemo(() => {
-    const departments = [...new Set(employees.map(emp => emp.department))];
-    const statuses = ['Active', 'Inactive', 'Probation'];
-    const classifications = ['Executive', 'Non-Executive', 'Contract', 'Trainee'];
+    const departments = [...new Set(employees.map(emp => emp.department?.name || ''))].filter(Boolean);
+    const statuses = Object.values(EmployeeStatus);
+    const types = Object.values(EmployeeType);
     
-    return { departments, statuses, classifications };
+    return { departments, statuses, types };
   }, [employees]);
 
   // Filter employees based on search and filters
@@ -69,18 +69,18 @@ const EmployeeList = () => {
     return employees.filter(employee => {
       const matchesSearch = 
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.emp_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.department.toLowerCase().includes(searchTerm.toLowerCase());
+        (employee.department?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = selectedFilters.status.length === 0 || 
         selectedFilters.status.includes(employee.status);
       const matchesDepartment = selectedFilters.department.length === 0 || 
-        selectedFilters.department.includes(employee.department);
-      const matchesClassification = selectedFilters.classification.length === 0 || 
-        selectedFilters.classification.includes(employee.classification);
+        selectedFilters.department.includes(employee.department?.name || '');
+      const matchesType = selectedFilters.type_code.length === 0 || 
+        selectedFilters.type_code.includes(employee.type_code);
 
-      return matchesSearch && matchesStatus && matchesDepartment && matchesClassification;
+      return matchesSearch && matchesStatus && matchesDepartment && matchesType;
     });
   }, [employees, searchTerm, selectedFilters]);
 
@@ -107,7 +107,7 @@ const EmployeeList = () => {
     setSelectedFilters({
       status: [],
       department: [],
-      classification: []
+      type_code: []
     });
     setSearchTerm('');
   };
@@ -127,33 +127,37 @@ const EmployeeList = () => {
     setCurrentPage(page);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: EmployeeStatus) => {
     switch (status) {
-      case 'Active':
+      case EmployeeStatus.Confirmed:
         return 'bg-green-100 text-green-800';
-      case 'Inactive':
+      case EmployeeStatus.Exited:
         return 'bg-red-100 text-red-800';
-      case 'Probation':
+      case EmployeeStatus.Probation:
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getClassificationColor = (classification: string) => {
-    switch (classification) {
-      case 'Executive':
+  const getTypeColor = (type: EmployeeType) => {
+    switch (type) {
+      case EmployeeType.Regular:
         return 'bg-blue-100 text-blue-800';
-      case 'Non-Executive':
+      case EmployeeType.Contractual:
         return 'bg-purple-100 text-purple-800';
-      case 'Contract':
+      case EmployeeType.Outsourced:
         return 'bg-orange-100 text-orange-800';
-      case 'Trainee':
+      case EmployeeType.Intern:
         return 'bg-cyan-100 text-cyan-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Filter employees with active status for stats
+  const activeEmployees = employees.filter(emp => emp.status === EmployeeStatus.Confirmed);
+  const probationEmployees = employees.filter(emp => emp.status === EmployeeStatus.Probation);
 
   return (
     <MainLayout>
@@ -195,9 +199,9 @@ const EmployeeList = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Active</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Confirmed</p>
                   <p className="text-xl sm:text-2xl font-bold text-green-600">
-                    {employees.filter(emp => emp.status === 'Active').length}
+                    {activeEmployees.length}
                   </p>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -212,7 +216,7 @@ const EmployeeList = () => {
                 <div>
                   <p className="text-xs sm:text-sm text-gray-600">On Probation</p>
                   <p className="text-xl sm:text-2xl font-bold text-yellow-600">
-                    {employees.filter(emp => emp.status === 'Probation').length}
+                    {probationEmployees.length}
                   </p>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -294,7 +298,7 @@ const EmployeeList = () => {
                         <TableRow>
                           <TableHead>Employee</TableHead>
                           <TableHead>Department</TableHead>
-                          <TableHead>Classification</TableHead>
+                          <TableHead>Type</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Joining Date</TableHead>
                           <TableHead>Actions</TableHead>
@@ -312,19 +316,19 @@ const EmployeeList = () => {
                                 </Avatar>
                                 <div>
                                   <p className="font-medium text-gray-900">{employee.name}</p>
-                                  <p className="text-sm text-gray-500 font-mono">{employee.employeeId}</p>
+                                  <p className="text-sm text-gray-500 font-mono">{employee.emp_code}</p>
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div>
-                                <p className="font-medium">{employee.department}</p>
-                                <p className="text-sm text-gray-500">{employee.designation}</p>
+                                <p className="font-medium">{employee.department?.name}</p>
+                                <p className="text-sm text-gray-500">{employee.designation?.title}</p>
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge className={getClassificationColor(employee.classification)}>
-                                {employee.classification}
+                              <Badge className={getTypeColor(employee.type_code)}>
+                                {employee.type_code}
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -332,7 +336,7 @@ const EmployeeList = () => {
                                 {employee.status}
                               </Badge>
                             </TableCell>
-                            <TableCell>{new Date(employee.joiningDate).toLocaleDateString()}</TableCell>
+                            <TableCell>{new Date(employee.doj).toLocaleDateString()}</TableCell>
                             <TableCell>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

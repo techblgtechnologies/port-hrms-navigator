@@ -15,32 +15,35 @@ interface AuthState {
 const mockUsers: User[] = [
   {
     id: '1',
-    employeeId: 'IPA-2024-001',
-    name: 'Admin User',
+    username: 'admin.user',
     email: 'admin@indianports.gov.in',
     role: 'admin',
-    department: 'Administration',
-    permissions: ['all']
+    emp_code: 'IPA-2024-001',
+    permissions: ['all'],
+    get name() { return 'Admin User'; },
+    department: 'Administration'
   },
   {
     id: '2',
-    employeeId: 'IPA-2024-002',
-    name: 'HR Manager',
+    username: 'hr.manager',
     email: 'hr@indianports.gov.in',
     role: 'hr',
-    department: 'Human Resources',
-    permissions: ['employees.read', 'employees.write', 'attendance.read', 'payroll.read']
+    emp_code: 'IPA-2024-002',
+    permissions: ['employees.read', 'employees.write', 'attendance.read', 'payroll.read'],
+    get name() { return 'HR Manager'; },
+    department: 'Human Resources'
   },
   {
     id: '3',
-    employeeId: 'IPA-2024-003',
-    name: 'Department Manager',
+    username: 'dept.manager',
     email: 'manager@indianports.gov.in',
     role: 'manager',
-    department: 'Operations',
-    permissions: ['employees.read', 'attendance.read', 'attendance.write']
+    emp_code: 'IPA-2024-003',
+    permissions: ['employees.read', 'attendance.read', 'attendance.write'],
+    get name() { return 'Department Manager'; },
+    department: 'Operations'
   }
-];
+] as User[];
 
 export const useAuthStore = create<AuthState>()(
   persist(

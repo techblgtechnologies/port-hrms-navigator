@@ -7,6 +7,9 @@ export interface User {
   emp_code: string;
   avatar?: string;
   permissions: string[];
+  // Computed properties for UI compatibility
+  get name(): string;
+  department?: string;
 }
 
 export enum EmployeeType {
@@ -43,6 +46,11 @@ export interface Employee {
   role?: Role;
   // Computed properties for backward compatibility
   get name(): string;
+  // Additional properties for UI compatibility
+  joiningDate?: string;
+  basicSalary?: number;
+  classification?: string;
+  employeeId?: string;
 }
 
 export interface AttendanceRecord {
@@ -64,6 +72,10 @@ export interface Department {
   is_deleted: boolean;
   created_at?: string;
   updated_at?: string;
+  // Additional properties for UI compatibility
+  head?: string;
+  description?: string;
+  employeeCount?: number;
 }
 
 export interface Designation {
