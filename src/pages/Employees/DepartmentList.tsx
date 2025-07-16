@@ -45,7 +45,7 @@ const DepartmentList = () => {
   const { departments } = useEmployeeStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
 
   // Filter departments based on search
   const filteredDepartments = useMemo(() => {
@@ -61,6 +61,11 @@ const DepartmentList = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedDepartments = filteredDepartments.slice(startIndex, startIndex + itemsPerPage);
 
+  // Reset pagination when search changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   const handleDeleteDepartment = (id: string) => {
     const department = departments.find(dept => dept.id === id);
     if (department) {
@@ -70,6 +75,10 @@ const DepartmentList = () => {
         description: `${department.name} has been removed.`,
       });
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -175,7 +184,9 @@ const DepartmentList = () => {
         {/* Department List */}
         <Card>
           <CardHeader>
-            <CardTitle>Departments ({filteredDepartments.length})</CardTitle>
+            <CardTitle>
+              Departments ({filteredDepartments.length} departments, showing {paginatedDepartments.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {filteredDepartments.length === 0 ? (
@@ -255,29 +266,44 @@ const DepartmentList = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4">
+                  <div className="mt-6 flex justify-center">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ))}
+                        
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                          let pageNumber;
+                          if (totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNumber = totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationLink
+                                onClick={() => handlePageChange(pageNumber)}
+                                isActive={currentPage === pageNumber}
+                                className="cursor-pointer"
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                             className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>

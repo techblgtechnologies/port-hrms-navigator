@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/Layout/MainLayout';
+import { useDesignationStore } from '../../stores/designationStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -16,13 +17,15 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
   Plus, 
-  Award, 
+  Briefcase, 
   Search,
   MoreVertical,
   Edit,
   Trash2,
   Users,
-  TrendingUp
+  DollarSign,
+  TrendingUp,
+  Building
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -40,111 +43,36 @@ import {
 } from "@/components/ui/pagination";
 import { toast } from '@/hooks/use-toast';
 
-// Mock designation data
-const mockDesignations = [
-  {
-    id: '1',
-    name: 'Chief Executive Officer',
-    level: 1,
-    description: 'Top executive responsible for overall company strategy',
-    department_id: '1',
-    employee_count: 1,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '2',
-    name: 'Vice President',
-    level: 2,
-    description: 'Senior executive reporting to CEO',
-    department_id: '1',
-    employee_count: 3,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '3',
-    name: 'Director',
-    level: 3,
-    description: 'Department head responsible for strategic planning',
-    department_id: '2',
-    employee_count: 5,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '4',
-    name: 'Manager',
-    level: 4,
-    description: 'Team leader responsible for day-to-day operations',
-    department_id: '3',
-    employee_count: 12,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '5',
-    name: 'Senior Executive',
-    level: 5,
-    description: 'Experienced professional with specialized skills',
-    department_id: '1',
-    employee_count: 18,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '6',
-    name: 'Executive',
-    level: 6,
-    description: 'Mid-level professional with operational responsibilities',
-    department_id: '2',
-    employee_count: 25,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '7',
-    name: 'Associate',
-    level: 7,
-    description: 'Entry-level professional position',
-    department_id: '3',
-    employee_count: 30,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  }
-];
-
 const DesignationList = () => {
   const navigate = useNavigate();
+  const { designations } = useDesignationStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
 
-  // Filter designations based on search and level
+  // Filter designations based on search
   const filteredDesignations = useMemo(() => {
-    return mockDesignations.filter(designation => {
-      const matchesSearch = 
-        designation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        designation.description.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesLevel = selectedLevel === null || designation.level === selectedLevel;
-      
-      return matchesSearch && matchesLevel;
-    });
-  }, [searchTerm, selectedLevel]);
+    return designations.filter(desig => 
+      desig.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      desig.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      desig.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [designations, searchTerm]);
 
   // Pagination
   const totalPages = Math.ceil(filteredDesignations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedDesignations = filteredDesignations.slice(startIndex, startIndex + itemsPerPage);
 
-  // Get unique levels for filtering
-  const levels = [...new Set(mockDesignations.map(d => d.level))].sort();
+  // Reset pagination when search changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleDeleteDesignation = (id: string) => {
-    const designation = mockDesignations.find(d => d.id === id);
+    const designation = designations.find(desig => desig.id === id);
     if (designation) {
+      // In real app, call API to delete
       toast({
         title: "Designation Deleted",
         description: `${designation.name} has been removed.`,
@@ -152,17 +80,38 @@ const DesignationList = () => {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const getLevelColor = (level: number) => {
-    const colors = [
-      'bg-red-100 text-red-800',
-      'bg-orange-100 text-orange-800',
-      'bg-yellow-100 text-yellow-800',
-      'bg-green-100 text-green-800',
-      'bg-blue-100 text-blue-800',
-      'bg-purple-100 text-purple-800',
-      'bg-pink-100 text-pink-800'
-    ];
-    return colors[(level - 1) % colors.length];
+    switch (level) {
+      case 1:
+        return 'bg-red-100 text-red-800';
+      case 2:
+        return 'bg-orange-100 text-orange-800';
+      case 3:
+        return 'bg-blue-100 text-blue-800';
+      case 4:
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getLevelName = (level: number) => {
+    switch (level) {
+      case 1:
+        return 'Executive';
+      case 2:
+        return 'Senior';
+      case 3:
+        return 'Junior';
+      case 4:
+        return 'Entry Level';
+      default:
+        return 'Unknown';
+    }
   };
 
   return (
@@ -172,10 +121,10 @@ const DesignationList = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <Award className="w-6 h-6 sm:w-8 sm:h-8 mr-3 text-blue-600" />
+              <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 mr-3 text-blue-600" />
               Designation Management
             </h1>
-            <p className="text-gray-600 mt-2">Manage organizational designations and hierarchy</p>
+            <p className="text-gray-600 mt-2">Manage job roles and positions</p>
           </div>
           <Button 
             onClick={() => navigate('/designations/add')}
@@ -193,23 +142,10 @@ const DesignationList = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs sm:text-sm text-gray-600">Total Designations</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{mockDesignations.length}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{designations.length}</p>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Award className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Hierarchy Levels</p>
-                  <p className="text-xl sm:text-2xl font-bold text-green-600">{levels.length}</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                  <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
               </div>
             </CardContent>
@@ -219,12 +155,12 @@ const DesignationList = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs sm:text-sm text-gray-600">Total Employees</p>
-                  <p className="text-xl sm:text-2xl font-bold text-purple-600">
-                    {mockDesignations.reduce((sum, d) => sum + d.employee_count, 0)}
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">
+                    {designations.reduce((sum, desig) => sum + desig.employeeCount, 0)}
                   </p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
@@ -233,13 +169,28 @@ const DesignationList = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Avg per Level</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Avg Salary</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                    ₹{Math.round(designations.reduce((sum, desig) => sum + ((desig.minSalary + desig.maxSalary) / 2), 0) / designations.length).toLocaleString()}
+                  </p>
+                </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600">Executive Roles</p>
                   <p className="text-xl sm:text-2xl font-bold text-orange-600">
-                    {Math.round(mockDesignations.length / levels.length)}
+                    {designations.filter(desig => desig.level === 1).length}
                   </p>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Award className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
                 </div>
               </div>
             </CardContent>
@@ -259,25 +210,6 @@ const DesignationList = () => {
                   className="pl-10"
                 />
               </div>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant={selectedLevel === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedLevel(null)}
-                >
-                  All Levels
-                </Button>
-                {levels.map((level) => (
-                  <Button
-                    key={level}
-                    variant={selectedLevel === level ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedLevel(level)}
-                  >
-                    Level {level}
-                  </Button>
-                ))}
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -285,15 +217,17 @@ const DesignationList = () => {
         {/* Designation List */}
         <Card>
           <CardHeader>
-            <CardTitle>Designations ({filteredDesignations.length})</CardTitle>
+            <CardTitle>
+              Designations ({filteredDesignations.length} designations, showing {paginatedDesignations.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {filteredDesignations.length === 0 ? (
               <div className="text-center py-12">
-                <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg mb-2">No designations found</p>
                 <p className="text-gray-400 text-sm">
-                  {searchTerm || selectedLevel ? "Try adjusting your search or filters" : "Get started by adding your first designation"}
+                  {searchTerm ? "Try adjusting your search" : "Get started by adding your first designation"}
                 </p>
               </div>
             ) : (
@@ -303,9 +237,10 @@ const DesignationList = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Designation</TableHead>
+                        <TableHead>Department</TableHead>
                         <TableHead>Level</TableHead>
                         <TableHead>Employee Count</TableHead>
-                        <TableHead>Description</TableHead>
+                        <TableHead>Salary Range</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -315,27 +250,37 @@ const DesignationList = () => {
                           <TableCell>
                             <div className="flex items-center space-x-3">
                               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <Award className="w-4 h-4 text-blue-600" />
+                                <Briefcase className="w-4 h-4 text-blue-600" />
                               </div>
                               <div>
                                 <p className="font-medium text-gray-900">{designation.name}</p>
+                                <p className="text-sm text-gray-500 max-w-xs truncate">
+                                  {designation.description}
+                                </p>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
+                            <div className="flex items-center">
+                              <Building className="w-4 h-4 text-gray-400 mr-2" />
+                              <p className="font-medium">{designation.department}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
                             <Badge className={getLevelColor(designation.level)}>
-                              Level {designation.level}
+                              Level {designation.level} - {getLevelName(designation.level)}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary">
-                              {designation.employee_count} employees
+                              {designation.employeeCount} employees
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <p className="text-sm text-gray-600 max-w-xs truncate">
-                              {designation.description}
-                            </p>
+                            <div className="text-sm">
+                              <p className="font-medium">₹{designation.minSalary.toLocaleString()} - ₹{designation.maxSalary.toLocaleString()}</p>
+                              <p className="text-gray-500">per month</p>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <DropdownMenu>
@@ -367,29 +312,44 @@ const DesignationList = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4">
+                  <div className="mt-6 flex justify-center">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ))}
+                        
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                          let pageNumber;
+                          if (totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNumber = totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationLink
+                                onClick={() => handlePageChange(pageNumber)}
+                                isActive={currentPage === pageNumber}
+                                className="cursor-pointer"
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                             className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>

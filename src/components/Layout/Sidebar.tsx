@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -54,6 +54,7 @@ const sidebarItems: SidebarItem[] = [
       { title: 'All Employees', href: '/employees', icon: Users },
       { title: 'Add Employee', href: '/employees/add', icon: UserPlus },
       { title: 'Departments', href: '/departments', icon: Building },
+      { title: 'Designations', href: '/designations', icon: Briefcase },
       { title: 'Probation Tracking', href: '/employees/probation', icon: Timer, badge: '5' }
     ]
   },
@@ -103,10 +104,32 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 export const Sidebar = () => {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Employee Management']);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const location = useLocation();
   const { user } = useAuthStore();
+
+  // Auto-expand parent menu based on current path
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const findParentItem = (items: SidebarItem[]): string | null => {
+      for (const item of items) {
+        if (item.children) {
+          for (const child of item.children) {
+            if (child.href === currentPath) {
+              return item.title;
+            }
+          }
+        }
+      }
+      return null;
+    };
+
+    const parentItem = findParentItem(sidebarItems);
+    if (parentItem && !expandedItems.includes(parentItem)) {
+      setExpandedItems(prev => [...prev.filter(item => item !== parentItem), parentItem]);
+    }
+  }, [location.pathname]);
 
   const toggleExpanded = (title: string) => {
     setExpandedItems(prev => 
@@ -123,11 +146,22 @@ export const Sidebar = () => {
     );
   };
 
+  const isActiveRoute = (href?: string) => {
+    if (!href) return false;
+    return location.pathname === href;
+  };
+
+  const hasActiveChild = (children?: SidebarItem[]) => {
+    if (!children) return false;
+    return children.some(child => isActiveRoute(child.href));
+  };
+
   const renderSidebarItem = (item: SidebarItem, level = 0) => {
     if (!hasPermission(item.permissions)) return null;
 
     const isExpanded = expandedItems.includes(item.title);
-    const isActive = item.href && location.pathname === item.href;
+    const isActive = isActiveRoute(item.href);
+    const hasActiveChildren = hasActiveChild(item.children);
     const isHovered = hoveredItem === item.title;
     
     return (
@@ -137,13 +171,13 @@ export const Sidebar = () => {
             to={item.href}
             onMouseEnter={() => setHoveredItem(item.title)}
             onMouseLeave={() => setHoveredItem(null)}
-            className={({ isActive }) => cn(
+            className={({ isActive: navIsActive }) => cn(
               'flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group',
               level > 0 && 'ml-6 pl-8',
-              isActive 
+              navIsActive 
                 ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600 shadow-sm' 
                 : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
-              isHovered && !isActive && 'bg-gray-50'
+              isHovered && !navIsActive && 'bg-gray-50'
             )}
           >
             <div className="flex items-center">
@@ -169,13 +203,13 @@ export const Sidebar = () => {
               level > 0 && 'ml-6',
               'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
               isHovered && 'bg-gray-50',
-              isExpanded && 'text-blue-700'
+              (isExpanded || hasActiveChildren) && 'text-blue-700 bg-blue-50'
             )}
           >
             <div className="flex items-center">
               <item.icon className={cn(
                 "w-5 h-5 mr-3 flex-shrink-0 transition-colors",
-                isExpanded ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"
+                (isExpanded || hasActiveChildren) ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"
               )} />
               <span className="truncate">{item.title}</span>
             </div>

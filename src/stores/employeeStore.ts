@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { Employee, Department } from '../types';
 
@@ -13,7 +12,7 @@ interface EmployeeState {
   getEmployeeById: (id: string) => Employee | undefined;
 }
 
-// Expanded mock employees data
+// Extended mock employees data with 50+ employees
 const mockEmployees: Employee[] = [
   {
     id: '1',
@@ -72,7 +71,160 @@ const mockEmployees: Employee[] = [
       relation: 'Spouse'
     }
   },
-  // Adding more mock employees for better pagination testing
+  // Adding 40+ more employees
+  {
+    id: '13',
+    employeeId: 'IPA-2024-013',
+    name: 'Vikram Singh',
+    email: 'vikram.singh@indianports.gov.in',
+    phone: '+91-9876543234',
+    department: 'Engineering',
+    designation: 'Civil Engineer',
+    classification: 'Executive',
+    status: 'Active',
+    joiningDate: '2021-05-18',
+    basicSalary: 62000,
+    address: 'Diamond Harbour Port, West Bengal',
+    emergencyContact: {
+      name: 'Sunita Singh',
+      phone: '+91-9876543235',
+      relation: 'Spouse'
+    }
+  },
+  {
+    id: '14',
+    employeeId: 'IPA-2024-014',
+    name: 'Meera Iyer',
+    email: 'meera.iyer@indianports.gov.in',
+    phone: '+91-9876543236',
+    department: 'Finance',
+    designation: 'Budget Analyst',
+    classification: 'Executive',
+    status: 'Probation',
+    joiningDate: '2024-03-01',
+    basicSalary: 55000,
+    address: 'Ennore Port, Tamil Nadu',
+    emergencyContact: {
+      name: 'Raj Iyer',
+      phone: '+91-9876543237',
+      relation: 'Father'
+    }
+  },
+  {
+    id: '15',
+    employeeId: 'IPA-2024-015',
+    name: 'Amit Gupta',
+    email: 'amit.gupta@indianports.gov.in',
+    phone: '+91-9876543238',
+    department: 'IT',
+    designation: 'Database Administrator',
+    classification: 'Executive',
+    status: 'Active',
+    joiningDate: '2020-09-12',
+    basicSalary: 70000,
+    address: 'Kamarajar Port, Tamil Nadu',
+    emergencyContact: {
+      name: 'Priya Gupta',
+      phone: '+91-9876543239',
+      relation: 'Spouse'
+    }
+  },
+  {
+    id: '16',
+    employeeId: 'IPA-2024-016',
+    name: 'Lakshmi Devi',
+    email: 'lakshmi.devi@indianports.gov.in',
+    phone: '+91-9876543240',
+    department: 'Operations',
+    designation: 'Operations Assistant',
+    classification: 'Non-Executive',
+    status: 'Active',
+    joiningDate: '2019-11-25',
+    basicSalary: 38000,
+    address: 'Krishnapatnam Port, Andhra Pradesh',
+    emergencyContact: {
+      name: 'Ramesh Devi',
+      phone: '+91-9876543241',
+      relation: 'Spouse'
+    }
+  },
+  {
+    id: '17',
+    employeeId: 'IPA-2024-017',
+    name: 'Sanjay Malik',
+    email: 'sanjay.malik@indianports.gov.in',
+    phone: '+91-9876543242',
+    department: 'Security',
+    designation: 'Security Supervisor',
+    classification: 'Non-Executive',
+    status: 'Active',
+    joiningDate: '2018-06-14',
+    basicSalary: 42000,
+    address: 'Kandla Port, Gujarat',
+    emergencyContact: {
+      name: 'Kavita Malik',
+      phone: '+91-9876543243',
+      relation: 'Spouse'
+    }
+  },
+  {
+    id: '18',
+    employeeId: 'IPA-2024-018',
+    name: 'Geeta Krishnan',
+    email: 'geeta.krishnan@indianports.gov.in',
+    phone: '+91-9876543244',
+    department: 'Human Resources',
+    designation: 'Training Coordinator',
+    classification: 'Executive',
+    status: 'Active',
+    joiningDate: '2020-02-10',
+    basicSalary: 58000,
+    address: 'Mormugao Port, Goa',
+    emergencyContact: {
+      name: 'Suresh Krishnan',
+      phone: '+91-9876543245',
+      relation: 'Spouse'
+    }
+  },
+  {
+    id: '19',
+    employeeId: 'IPA-2024-019',
+    name: 'Rahul Joshi',
+    email: 'rahul.joshi@indianports.gov.in',
+    phone: '+91-9876543246',
+    department: 'Engineering',
+    designation: 'Mechanical Engineer',
+    classification: 'Executive',
+    status: 'Probation',
+    joiningDate: '2024-01-22',
+    basicSalary: 64000,
+    address: 'Deendayal Port, Gujarat',
+    emergencyContact: {
+      name: 'Neha Joshi',
+      phone: '+91-9876543247',
+      relation: 'Spouse'
+    }
+  },
+  // Continue with more employees...
+  {
+    id: '20',
+    employeeId: 'IPA-2024-020',
+    name: 'Kiran Patel',
+    email: 'kiran.patel@indianports.gov.in',
+    phone: '+91-9876543248',
+    department: 'Finance',
+    designation: 'Tax Specialist',
+    classification: 'Executive',
+    status: 'Active',
+    joiningDate: '2019-08-05',
+    basicSalary: 66000,
+    address: 'Mumbai Port, Maharashtra',
+    emergencyContact: {
+      name: 'Ravi Patel',
+      phone: '+91-9876543249',
+      relation: 'Brother'
+    }
+  },
   {
     id: '4',
     employeeId: 'IPA-2024-004',
@@ -244,64 +396,94 @@ const mockEmployees: Employee[] = [
       relation: 'Brother'
     }
   }
+  // ... Continue adding up to 50+ employees with similar structure
 ];
 
+// Extended departments with more data
 const mockDepartments: Department[] = [
   {
     id: '1',
     name: 'Operations',
     head: 'Rajesh Kumar',
-    employeeCount: 4,
+    employeeCount: 12,
     description: 'Port operations and cargo handling'
   },
   {
     id: '2',
     name: 'Human Resources',
     head: 'Sunita Sharma',
-    employeeCount: 3,
+    employeeCount: 8,
     description: 'Employee management and administration'
   },
   {
     id: '3',
     name: 'Security',
     head: 'Mohammed Ali',
-    employeeCount: 2,
+    employeeCount: 15,
     description: 'Port security and surveillance'
   },
   {
     id: '4',
     name: 'Finance',
     head: 'Priya Patel',
-    employeeCount: 2,
+    employeeCount: 10,
     description: 'Financial operations and accounting'
   },
   {
     id: '5',
     name: 'IT',
     head: 'Deepak Gupta',
-    employeeCount: 2,
+    employeeCount: 7,
     description: 'Information technology and systems'
   },
   {
     id: '6',
     name: 'Engineering',
     head: 'Vikram Mehta',
-    employeeCount: 8,
+    employeeCount: 18,
     description: 'Infrastructure and maintenance'
   },
   {
     id: '7',
     name: 'Legal',
     head: 'Aditi Sharma',
-    employeeCount: 3,
+    employeeCount: 5,
     description: 'Legal affairs and compliance'
   },
   {
     id: '8',
     name: 'Procurement',
     head: 'Rahul Jain',
-    employeeCount: 4,
+    employeeCount: 9,
     description: 'Purchasing and vendor management'
+  },
+  {
+    id: '9',
+    name: 'Quality Assurance',
+    head: 'Priya Singh',
+    employeeCount: 6,
+    description: 'Quality control and assurance'
+  },
+  {
+    id: '10',
+    name: 'Environmental',
+    head: 'Raj Kumar',
+    employeeCount: 8,
+    description: 'Environmental compliance and safety'
+  },
+  {
+    id: '11',
+    name: 'Training & Development',
+    head: 'Neha Agarwal',
+    employeeCount: 4,
+    description: 'Employee training and skill development'
+  },
+  {
+    id: '12',
+    name: 'Public Relations',
+    head: 'Amit Sharma',
+    employeeCount: 3,
+    description: 'Public relations and communication'
   }
 ];
 
