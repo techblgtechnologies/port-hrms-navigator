@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import Dashboard from './pages/Dashboard';
 import EmployeeList from './pages/Employees/EmployeeList';
@@ -16,9 +17,11 @@ import EditEmployee from './pages/Employees/EditEmployee';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Toaster />
         <Routes>
@@ -37,7 +40,7 @@ function App() {
           <Route path="/profile/edit" element={<EditProfile />} />
         </Routes>
       </BrowserRouter>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 

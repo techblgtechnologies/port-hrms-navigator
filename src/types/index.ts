@@ -1,11 +1,10 @@
 
 export interface User {
   id: string;
-  employeeId: string;
-  name: string;
+  username: string;
   email: string;
   role: 'admin' | 'hr' | 'manager' | 'employee';
-  department: string;
+  emp_code: string;
   avatar?: string;
   permissions: string[];
 }
@@ -42,6 +41,8 @@ export interface Employee {
   department?: Department;
   designation?: Designation;
   role?: Role;
+  // Computed properties for backward compatibility
+  get name(): string;
 }
 
 export interface AttendanceRecord {

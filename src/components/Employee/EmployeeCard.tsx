@@ -12,7 +12,6 @@ import {
   Trash2, 
   Phone, 
   Mail, 
-  MapPin,
   Calendar,
   Building,
   User
@@ -44,26 +43,26 @@ export const EmployeeCard = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active':
+      case 'Confirmed':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'Inactive':
-        return 'bg-red-100 text-red-800 border-red-200';
       case 'Probation':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'Exited':
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getClassificationColor = (classification: string) => {
-    switch (classification) {
-      case 'Executive':
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'Regular':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Non-Executive':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Contract':
+      case 'Contractual':
         return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'Trainee':
+      case 'Outsourced':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Intern':
         return 'bg-cyan-100 text-cyan-800 border-cyan-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -90,8 +89,8 @@ export const EmployeeCard = ({
             </Avatar>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 truncate">{employee.name}</h3>
-              <p className="text-sm text-gray-600 truncate">{employee.designation}</p>
-              <p className="text-xs text-gray-500 font-mono">{employee.employeeId}</p>
+              <p className="text-sm text-gray-600 truncate">{employee.designation?.title}</p>
+              <p className="text-xs text-gray-500 font-mono">{employee.emp_code}</p>
             </div>
             <div className="flex flex-col items-end space-y-1">
               <Badge className={cn("text-xs", getStatusColor(employee.status))}>
@@ -157,9 +156,9 @@ export const EmployeeCard = ({
             </Avatar>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">{employee.name}</h3>
-              <p className="text-sm text-gray-600 mb-1">{employee.designation}</p>
+              <p className="text-sm text-gray-600 mb-1">{employee.designation?.title}</p>
               <p className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded">
-                {employee.employeeId}
+                {employee.emp_code}
               </p>
             </div>
           </div>
@@ -194,8 +193,8 @@ export const EmployeeCard = ({
           <Badge className={cn("text-xs border", getStatusColor(employee.status))}>
             {employee.status}
           </Badge>
-          <Badge className={cn("text-xs border", getClassificationColor(employee.classification))}>
-            {employee.classification}
+          <Badge className={cn("text-xs border", getTypeColor(employee.type_code))}>
+            {employee.type_code}
           </Badge>
         </div>
 
@@ -203,7 +202,7 @@ export const EmployeeCard = ({
         <div className="space-y-3">
           <div className="flex items-center text-sm text-gray-600">
             <Building className="w-4 h-4 mr-2 text-gray-400" />
-            <span>{employee.department}</span>
+            <span>{employee.department?.name}</span>
           </div>
           
           <div className="flex items-center text-sm text-gray-600">
@@ -220,16 +219,16 @@ export const EmployeeCard = ({
           
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-            <span>Joined {new Date(employee.joiningDate).toLocaleDateString()}</span>
+            <span>Joined {new Date(employee.doj).toLocaleDateString()}</span>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
           <div className="text-sm">
-            <span className="text-gray-500">Basic Salary:</span>
+            <span className="text-gray-500">Employee Code:</span>
             <span className="font-semibold text-gray-900 ml-1">
-              ₹{employee.basicSalary.toLocaleString()}
+              {employee.emp_code}
             </span>
           </div>
           <Button 
