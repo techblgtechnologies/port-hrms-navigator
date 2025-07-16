@@ -45,7 +45,7 @@ const EmployeeProfile = () => {
   }
 
   // Mock salary data for graph - using a base salary of 50000 if not available
-  const baseSalary = employee.basic_salary || 50000;
+  const baseSalary = employee.basicSalary || 50000;
   const salaryData = [
     { month: 'Jan', salary: baseSalary * 0.9 },
     { month: 'Feb', salary: baseSalary * 0.95 },
@@ -123,7 +123,7 @@ const EmployeeProfile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Basic Salary</p>
-                  <p className="text-lg font-semibold">₹{(employee.basic_salary || 50000).toLocaleString()}</p>
+                  <p className="text-lg font-semibold">₹{(employee.basicSalary || 50000).toLocaleString()}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
               </div>
@@ -268,15 +268,15 @@ const EmployeeProfile = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span>Basic Salary:</span>
-                      <span className="font-medium">₹{(employee.basic_salary || 50000).toLocaleString()}</span>
+                      <span className="font-medium">₹{(employee.basicSalary || 50000).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>HRA (30%):</span>
-                      <span className="font-medium">₹{((employee.basic_salary || 50000) * 0.3).toLocaleString()}</span>
+                      <span className="font-medium">₹{((employee.basicSalary || 50000) * 0.3).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>DA (20%):</span>
-                      <span className="font-medium">₹{((employee.basic_salary || 50000) * 0.2).toLocaleString()}</span>
+                      <span className="font-medium">₹{((employee.basicSalary || 50000) * 0.2).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Medical Allowance:</span>
@@ -284,7 +284,7 @@ const EmployeeProfile = () => {
                     </div>
                     <div className="border-t pt-2 flex justify-between text-lg font-semibold">
                       <span>Gross Salary:</span>
-                      <span>₹{((employee.basic_salary || 50000) * 1.5 + 1500).toLocaleString()}</span>
+                      <span>₹{((employee.basicSalary || 50000) * 1.5 + 1500).toLocaleString()}</span>
                     </div>
                   </div>
                 </CardContent>
