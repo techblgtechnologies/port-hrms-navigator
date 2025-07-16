@@ -44,21 +44,22 @@ const EmployeeProfile = () => {
     );
   }
 
-  // Mock salary data for graph
+  // Mock salary data for graph - using a base salary of 50000 if not available
+  const baseSalary = employee.basic_salary || 50000;
   const salaryData = [
-    { month: 'Jan', salary: employee.basicSalary * 0.9 },
-    { month: 'Feb', salary: employee.basicSalary * 0.95 },
-    { month: 'Mar', salary: employee.basicSalary },
-    { month: 'Apr', salary: employee.basicSalary * 1.1 },
-    { month: 'May', salary: employee.basicSalary * 1.05 },
-    { month: 'Jun', salary: employee.basicSalary * 1.15 },
+    { month: 'Jan', salary: baseSalary * 0.9 },
+    { month: 'Feb', salary: baseSalary * 0.95 },
+    { month: 'Mar', salary: baseSalary },
+    { month: 'Apr', salary: baseSalary * 1.1 },
+    { month: 'May', salary: baseSalary * 1.05 },
+    { month: 'Jun', salary: baseSalary * 1.15 },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active':
+      case 'Confirmed':
         return 'bg-green-100 text-green-800';
-      case 'Inactive':
+      case 'Exited':
         return 'bg-red-100 text-red-800';
       case 'Probation':
         return 'bg-yellow-100 text-yellow-800';
@@ -80,7 +81,7 @@ const EmployeeProfile = () => {
             </Avatar>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
-              <p className="text-gray-600">{employee.designation} • {employee.department}</p>
+              <p className="text-gray-600">{employee.designation?.title || 'N/A'} • {employee.department?.name || 'N/A'}</p>
               <Badge className={getStatusColor(employee.status)}>
                 {employee.status}
               </Badge>
@@ -111,7 +112,7 @@ const EmployeeProfile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Employee ID</p>
-                  <p className="text-lg font-semibold">{employee.employeeId}</p>
+                  <p className="text-lg font-semibold">{employee.emp_code}</p>
                 </div>
                 <User className="h-8 w-8 text-blue-600" />
               </div>
@@ -122,7 +123,7 @@ const EmployeeProfile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Basic Salary</p>
-                  <p className="text-lg font-semibold">₹{employee.basicSalary.toLocaleString()}</p>
+                  <p className="text-lg font-semibold">₹{(employee.basic_salary || 50000).toLocaleString()}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
               </div>
@@ -134,7 +135,7 @@ const EmployeeProfile = () => {
                 <div>
                   <p className="text-sm text-gray-600">Years of Service</p>
                   <p className="text-lg font-semibold">
-                    {new Date().getFullYear() - new Date(employee.joiningDate).getFullYear()}
+                    {new Date().getFullYear() - new Date(employee.doj).getFullYear()}
                   </p>
                 </div>
                 <Award className="h-8 w-8 text-purple-600" />
@@ -145,8 +146,8 @@ const EmployeeProfile = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Classification</p>
-                  <p className="text-lg font-semibold">{employee.classification}</p>
+                  <p className="text-sm text-gray-600">Employee Type</p>
+                  <p className="text-lg font-semibold">{employee.type_code}</p>
                 </div>
                 <Building className="h-8 w-8 text-orange-600" />
               </div>
@@ -192,7 +193,7 @@ const EmployeeProfile = () => {
                       <Calendar className="h-5 w-5 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-600">Date of Birth</p>
-                        <p className="font-medium">15th March, 1990</p>
+                        <p className="font-medium">{employee.dob ? new Date(employee.dob).toLocaleDateString() : '15th March, 1990'}</p>
                       </div>
                     </div>
                   </div>
@@ -224,15 +225,15 @@ const EmployeeProfile = () => {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm text-gray-600">Department</p>
-                      <p className="font-medium">{employee.department}</p>
+                      <p className="font-medium">{employee.department?.name || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Designation</p>
-                      <p className="font-medium">{employee.designation}</p>
+                      <p className="font-medium">{employee.designation?.title || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Joining Date</p>
-                      <p className="font-medium">{new Date(employee.joiningDate).toLocaleDateString()}</p>
+                      <p className="font-medium">{new Date(employee.doj).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -246,7 +247,7 @@ const EmployeeProfile = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Employee Type</p>
-                      <Badge>{employee.classification}</Badge>
+                      <Badge>{employee.type_code}</Badge>
                     </div>
                   </div>
                 </div>
@@ -267,15 +268,15 @@ const EmployeeProfile = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span>Basic Salary:</span>
-                      <span className="font-medium">₹{employee.basicSalary.toLocaleString()}</span>
+                      <span className="font-medium">₹{(employee.basic_salary || 50000).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>HRA (30%):</span>
-                      <span className="font-medium">₹{(employee.basicSalary * 0.3).toLocaleString()}</span>
+                      <span className="font-medium">₹{((employee.basic_salary || 50000) * 0.3).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>DA (20%):</span>
-                      <span className="font-medium">₹{(employee.basicSalary * 0.2).toLocaleString()}</span>
+                      <span className="font-medium">₹{((employee.basic_salary || 50000) * 0.2).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Medical Allowance:</span>
@@ -283,7 +284,7 @@ const EmployeeProfile = () => {
                     </div>
                     <div className="border-t pt-2 flex justify-between text-lg font-semibold">
                       <span>Gross Salary:</span>
-                      <span>₹{(employee.basicSalary * 1.5 + 1500).toLocaleString()}</span>
+                      <span>₹{((employee.basic_salary || 50000) * 1.5 + 1500).toLocaleString()}</span>
                     </div>
                   </div>
                 </CardContent>
